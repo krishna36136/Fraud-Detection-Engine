@@ -4,28 +4,36 @@ import org.springframework.stereotype.Service;
 
 import com.krishna.Risk_Scoring_Service.event.FeatureEvent;
 
+import org.springframework.stereotype.Service;
 
+import com.krishna.Risk_Scoring_Service.client.MlServiceClient;
+import com.krishna.Risk_Scoring_Service.dto.PredictionRequest;
+import com.krishna.Risk_Scoring_Service.dto.PredictionResponse;
+import com.krishna.Risk_Scoring_Service.event.FeatureEvent;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class MlScoringService {
 
-    public int calculateMlScore(
-            FeatureEvent feature) {
+    private final MlServiceClient mlServiceClient;
 
-        double score = 0;
+    public int calculateMlScore(FeatureEvent feature) {
 
-        score += feature.getAmountDeviationPercent() * 0.15;
+        PredictionRequest request =
+                PredictionRequest.builder()
+                        .amount(feature.getAmount())
+                        .avgAmount(feature.getAvgAmount())
+                        .amountDeviationPercent(feature.getAmountDeviationPercent())
+                        .txnPerMinute(feature.getTxnPerMinute())
+                        .newDevice(feature.isNewDevice())
+                        .countryMismatch(feature.isCountryMismatch())
+                        .build();
 
-        score += feature.getTxnPerMinute() * 5;
+        PredictionResponse response =
+                mlServiceClient.predict(request);
 
-        if(feature.isNewDevice()) {
-            score += 20;
-        }
-
-        if(feature.isCountryMismatch()) {
-            score += 25;
-        }
-
-        return (int)Math.min(score,100);
+        return (int)(response.getFraudProbability() * 100);
     }
 }

@@ -1,0 +1,15 @@
+First to start all the services in docker
+
+docker compose up -d
+
+TO stop all the services
+
+docker compose down
+
+
+
+To Start the Fraud-ML-Service
+
+cd Fraud-ML-Service
+.\venv\Scripts\Activate
+uvicorn app.main:app --host 0.0.0.0 --port 8000

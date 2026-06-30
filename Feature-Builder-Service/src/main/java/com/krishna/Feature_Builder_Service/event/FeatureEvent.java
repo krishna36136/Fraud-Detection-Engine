@@ -18,6 +18,8 @@ public class FeatureEvent {
     private String userId;
 
     private Double amount;
+    
+    private double avgAmount;
 
     private boolean newDevice;
 
